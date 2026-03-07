@@ -2,9 +2,13 @@ from fastapi import UploadFile
 import os
 import uuid
 
+from services.transcription_service import transcribe_audio
+
+
 UPLOAD_DIR = "uploads"
 
-async def save_audio(file: UploadFile) -> str:
+
+async def process_audio(file: UploadFile):
     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
     file_id = f"{uuid.uuid4()}_{file.filename}"
@@ -13,4 +17,9 @@ async def save_audio(file: UploadFile) -> str:
     with open(file_path, "wb") as buffer:
         buffer.write(await file.read())
 
-    return file_path
+    transcription = transcribe_audio(file_path)
+
+    return {
+        "file_path": file_path,
+        "transcription": transcription
+    }
