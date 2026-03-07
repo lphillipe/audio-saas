@@ -11,9 +11,11 @@ router = APIRouter(
 
 @router.post("/upload")
 async def upload_audio(file: UploadFile = File(...)):
+
     result = await process_audio(file)
 
     return {
         "message": "audio processed",
-        "transcription": result["transcription"]
+        "transcription": result["transcription"],
+        "summaries": result["summaries"]
     }

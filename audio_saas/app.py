@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from core.settings import settings
+#from core.settings import settings
 from routers import audio, summary, auth
 
 app = FastAPI(
@@ -16,7 +16,7 @@ app.include_router(auth.router)
 async def health_check():
     return {
         "status": "ok"
-        "environment": settings.environment
+        #"environment": settings.environment
     
     }
 

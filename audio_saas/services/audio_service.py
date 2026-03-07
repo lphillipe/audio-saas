@@ -3,12 +3,14 @@ import os
 import uuid
 
 from services.transcription_service import transcribe_audio
+from services.summary_service import generate_summaries
 
 
 UPLOAD_DIR = "uploads"
 
 
 async def process_audio(file: UploadFile):
+
     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
     file_id = f"{uuid.uuid4()}_{file.filename}"
@@ -19,7 +21,10 @@ async def process_audio(file: UploadFile):
 
     transcription = transcribe_audio(file_path)
 
+    summaries = generate_summaries(transcription)
+
     return {
         "file_path": file_path,
-        "transcription": transcription
+        "transcription": transcription,
+        "summaries": summaries
     }
