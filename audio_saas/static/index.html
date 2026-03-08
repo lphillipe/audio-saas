@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumo de Palestras</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎤 Resumo de Palestras</h1>
+            <p>Faça upload do áudio e gere resumos automaticamente</p>
+        </header>
+
+        <main>
+            <!-- Área de Upload -->
+            <section class="upload-section">
+                <div class="upload-box" id="dropZone">
+                    <input type="file" id="audioFile" accept="audio/*" hidden>
+                    <div class="upload-icon">📁</div>
+                    <p>Clique ou arraste um arquivo de áudio</p>
+                    <p class="hint">Formatos: MP3, WAV, M4A, OGG</p>
+                </div>
+                <button id="uploadBtn" class="btn-primary" disabled>
+                    Processar Áudio
+                </button>
+            </section>
+
+            <!-- Status do Processamento -->
+            <section id="processingSection" class="processing-section hidden">
+                <div class="spinner"></div>
+                <p>Processando áudio...</p>
+                <p class="hint">Isso pode levar alguns minutos</p>
+            </section>
+
+            <!-- Resultados -->
+            <section id="resultsSection" class="results-section hidden">
+                <h2>✅ Resultados</h2>
+                
+                <!-- Transcrição Completa -->
+                <div class="result-card">
+                    <h3>📄 Transcrição Completa</h3>
+                    <div class="transcription-text" id="fullTranscription"></div>
+                </div>
+
+                <!-- Três Resumos -->
+                <div class="summaries-grid">
+                    <div class="summary-card short">
+                        <h3>📌 Resumo Curto</h3>
+                        <p id="summaryCurto"></p>
+                    </div>
+                    
+                    <div class="summary-card medium">
+                        <h3>📋 Resumo Médio</h3>
+                        <p id="summaryMedio"></p>
+                    </div>
+                    
+                    <div class="summary-card detailed">
+                        <h3>📖 Resumo Detalhado</h3>
+                        <p id="summaryDetalhado"></p>
+                    </div>
+                </div>
+
+                <button class="btn-secondary" onclick="location.reload()">
+                    Processar Novo Áudio
+                </button>
+            </section>
+
+            <!-- Erro -->
+            <section id="errorSection" class="error-section hidden">
+                <h2>❌ Erro</h2>
+                <p id="errorMessage"></p>
+                <button class="btn-secondary" onclick="location.reload()">
+                    Tentar Novamente
+                </button>
+            </section>
+        </main>
+
+        <footer>
+            <p>Sistema de Resumos Automáticos</p>
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

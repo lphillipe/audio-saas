@@ -1,0 +1,260 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Header */
+header {
+    text-align: center;
+    color: white;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Upload Section */
+.upload-section {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.upload-box {
+    border: 3px dashed #667eea;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9ff;
+}
+
+.upload-box:hover,
+.upload-box.dragover {
+    border-color: #764ba2;
+    background: #f0f2ff;
+}
+
+.upload-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.upload-box p {
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.hint {
+    color: #888 !important;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+/* Buttons */
+.btn-primary,
+.btn-secondary {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: #f0f2ff;
+    color: #667eea;
+}
+
+.btn-secondary:hover {
+    background: #e0e4ff;
+}
+
+/* Processing Section */
+.processing-section {
+    background: white;
+    border-radius: 12px;
+    padding: 60px 30px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f0f2ff;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.processing-section p {
+    color: #333;
+    font-size: 1.2rem;
+}
+
+/* Results Section */
+.results-section {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.results-section h2 {
+    color: #333;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.result-card {
+    background: #f8f9ff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.result-card h3 {
+    color: #667eea;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.transcription-text {
+    background: white;
+    padding: 20px;
+    border-radius: 6px;
+    line-height: 1.8;
+    color: #333;
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+}
+
+/* Summaries Grid */
+.summaries-grid {
+    display: grid;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+@media (min-width: 600px) {
+    .summaries-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.summary-card {
+    background: #f8f9ff;
+    border-radius: 8px;
+    padding: 20px;
+    border-left: 4px solid;
+}
+
+.summary-card.short {
+    border-color: #22c55e;
+}
+
+.summary-card.medium {
+    border-color: #3b82f6;
+}
+
+.summary-card.detailed {
+    border-color: #8b5cf6;
+}
+
+.summary-card h3 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+}
+
+.summary-card.short h3 { color: #22c55e; }
+.summary-card.medium h3 { color: #3b82f6; }
+.summary-card.detailed h3 { color: #8b5cf6; }
+
+.summary-card p {
+    color: #555;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+/* Error Section */
+.error-section {
+    background: white;
+    border-radius: 12px;
+    padding: 40px 30px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.error-section h2 {
+    color: #ef4444;
+    margin-bottom: 15px;
+}
+
+.error-section p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    color: white;
+    margin-top: 30px;
+    opacity: 0.8;
+    font-size: 0.9rem;
+}
