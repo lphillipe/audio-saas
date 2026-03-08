@@ -1,11 +1,11 @@
-from transformers import pipeline
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+import torch
 
-# Carrega o modelo de sumarização uma única vez (mais eficiente)
+# Carrega o modelo e tokenizer uma única vez (mais eficiente)
 # FLAN-T5 é um modelo que entende instruções em linguagem natural
-summarizer = pipeline(
-    "text2text-generation",
-    model="google/flan-t5-base"
-)
+model_name = "google/flan-t5-base"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 
 
 def _summarize(text: str, max_length: int, instruction: str) -> str:
@@ -20,14 +20,24 @@ def _summarize(text: str, max_length: int, instruction: str) -> str:
     Returns:
         Texto resumido
     """
-    prompt = f"""
-    {instruction}
-    Transcript:
-    {text}
-    """
+    # Cria o prompt com instrução
+    prompt = f"{instruction} {text[:500]}"  # Limita texto de entrada para não exceder
     
-    result = summarizer(prompt, max_length=max_length)
-    return result[0]["generated_text"]
+    # Tokeniza
+    inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
+    
+    # Gera resumo
+    with torch.no_grad():
+        outputs = model.generate(
+            **inputs,
+            max_length=max_length,
+            num_beams=4,
+            early_stopping=True
+        )
+    
+    # Decodifica
+    summary = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    return summary
 
 
 def generate_summaries(text: str) -> dict:
@@ -42,18 +52,18 @@ def generate_summaries(text: str) -> dict:
     """
     return {
         "curto": _summarize(
-            text, 
-            max_length=50,
-            instruction="Resuma em 1-2 frases muito curtas:"
+            text,
+            max_length=30,
+            instruction="Resuma em uma frase curta:"
         ),
         "medio": _summarize(
             text,
-            max_length=150,
-            instruction="Resuma em um parágrafo médio destacando os pontos principais:"
+            max_length=100,
+            instruction="Resuma em um parágrafo destacando os pontos principais:"
         ),
         "detalhado": _summarize(
             text,
-            max_length=400,
-            instruction="Faça um resumo detalhado com os principais pontos e contexto:"
+            max_length=300,
+            instruction="Faça um resumo detalhado com os principais pontos:"
         )
     }

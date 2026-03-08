@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, File
 
-from services.audio_service import process_audio
+from audio_saas.services.audio_service import process_audio
 
 
 router = APIRouter(
