@@ -1,48 +1,94 @@
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-import torch
-
-# Carrega o modelo e tokenizer uma única vez (mais eficiente)
-# FLAN-T5 é um modelo que entende instruções em linguagem natural
-model_name = "google/flan-t5-base"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+import re
+from collections import Counter
 
 
-def _summarize(text: str, max_length: int, instruction: str) -> str:
+def _split_sentences(text: str) -> list:
     """
-    Função interna que gera um resumo com tamanho específico.
+    Divide o texto em sentenças.
+    """
+    # Divide por pontuação final
+    sentences = re.split(r'[.!?]+', text)
+    # Remove sentenças vazias ou muito curtas
+    return [s.strip() for s in sentences if len(s.strip()) > 20]
+
+
+def _score_sentence(sentence: str, word_freq: Counter) -> float:
+    """
+    Calcula score de uma sentença baseado na frequência das palavras.
+    """
+    words = sentence.lower().split()
+    if not words:
+        return 0
+    
+    score = sum(word_freq.get(word, 0) for word in words)
+    return score / len(words)
+
+
+def _summarize_extractive(text: str, num_sentences: int) -> str:
+    """
+    Gera resumo extrativo selecionando as frases mais importantes.
     
     Args:
-        text: Texto original para resumir
-        max_length: Tamanho máximo do resumo em tokens
-        instruction: Instrução para o modelo (curto, médio, detalhado)
+        text: Texto original
+        num_sentences: Número de frases para incluir no resumo
         
     Returns:
         Texto resumido
     """
-    # Cria o prompt com instrução
-    prompt = f"{instruction} {text[:500]}"  # Limita texto de entrada para não exceder
+    sentences = _split_sentences(text)
     
-    # Tokeniza
-    inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
+    # Se tiver poucas frases, retorna o texto original
+    if len(sentences) <= num_sentences:
+        return ". ".join(sentences) + "." if sentences else text
     
-    # Gera resumo
-    with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_length=max_length,
-            num_beams=4,
-            early_stopping=True
-        )
+    # Calcula frequência de palavras (exceto stop words)
+    stop_words = {
+        'de', 'do', 'da', 'dos', 'das', 'um', 'uma', 'uns', 'umas',
+        'o', 'a', 'os', 'as', 'e', 'ou', 'mas', 'que', 'se', 'na', 
+        'no', 'em', 'para', 'com', 'por', 'ao', 'à', 'é', 'são',
+        'foi', 'foram', 'ser', 'estar', 'ter', 'haver', 'como',
+        'mais', 'menos', 'muito', 'pouco', 'todo', 'toda', 'todos',
+        'todas', 'este', 'esta', 'esse', 'essa', 'isto', 'aquilo',
+        'ele', 'ela', 'eles', 'elas', 'meu', 'minha', 'seu', 'sua',
+        'nosso', 'nossa', 'qual', 'quais', 'quem', 'onde', 'quando',
+        'porque', 'porquê', 'também', 'só', 'apenas', 'até', 'já',
+        'bem', 'cada', 'tal', 'tais', 'mesmo', 'próprio', 'outro',
+        'outros', 'outras', 'algum', 'alguns', 'alguma', 'algumas',
+        'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'
+    }
     
-    # Decodifica
-    summary = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    all_words = []
+    for sentence in sentences:
+        words = sentence.lower().split()
+        all_words.extend([w for w in words if w not in stop_words and len(w) > 2])
+    
+    word_freq = Counter(all_words)
+    
+    # Score de cada sentença
+    scored = []
+    for i, sentence in enumerate(sentences):
+        score = _score_sentence(sentence, word_freq)
+        # Dá prioridade para as primeiras frases
+        if i < 3:
+            score *= 1.2
+        scored.append((i, sentence, score))
+    
+    # Pega as melhores sentenças
+    scored.sort(key=lambda x: x[2], reverse=True)
+    top_sentences = scored[:num_sentences]
+    
+    # Ordena pela posição original no texto
+    top_sentences.sort(key=lambda x: x[0])
+    
+    # Junta as sentenças
+    summary = ". ".join([s[1] for s in top_sentences]) + "."
+    
     return summary
 
 
 def generate_summaries(text: str) -> dict:
     """
-    Gera três níveis de resumo para uma transcrição.
+    Gera três níveis de resumo para uma transcrição usando método extrativo.
     
     Args:
         text: Texto completo da transcrição
@@ -51,19 +97,7 @@ def generate_summaries(text: str) -> dict:
         Dicionário com três resumos: curto, medio e detalhado
     """
     return {
-        "curto": _summarize(
-            text,
-            max_length=30,
-            instruction="Resuma em uma frase curta:"
-        ),
-        "medio": _summarize(
-            text,
-            max_length=100,
-            instruction="Resuma em um parágrafo destacando os pontos principais:"
-        ),
-        "detalhado": _summarize(
-            text,
-            max_length=300,
-            instruction="Faça um resumo detalhado com os principais pontos:"
-        )
+        "curto": _summarize_extractive(text, num_sentences=2),
+        "medio": _summarize_extractive(text, num_sentences=5),
+        "detalhado": _summarize_extractive(text, num_sentences=10)
     }

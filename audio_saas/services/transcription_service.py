@@ -2,9 +2,10 @@ import whisper
 import os
 
 # Carrega o modelo Whisper uma única vez (mais eficiente)
-# Opções: "tiny", "base", "small", "medium", "large"
-# "base" é um bom equilíbrio entre velocidade e precisão
-model = whisper.load_model("base")
+# Opções: "tiny", "base", "small", "medium", "large", "turbo"
+# "medium" é recomendado para palestras - melhor precisão com termos religiosos
+# Forçamos uso de CPU para evitar erros com CUDA
+model = whisper.load_model("medium", device="cpu")
 
 
 def transcribe_audio(audio_path: str) -> str:
@@ -18,6 +19,12 @@ def transcribe_audio(audio_path: str) -> str:
         Texto transcrito em português
     """
     # Define o idioma para português para melhor precisão
-    result = model.transcribe(audio_path, language="pt")
+    # Adiciona prompt para contexto religioso (ajuda com termos bíblicos)
+    result = model.transcribe(
+        audio_path, 
+        language="pt",
+        condition_on_previous_text=True,
+        initial_prompt="Esta é uma palestra religiosa. Pode conter termos bíblicos, nomes de livros da Bíblia, e referências religiosas."
+    )
     
     return result["text"]
